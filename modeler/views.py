@@ -35,7 +35,6 @@ import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
 from matplotlib.colors import ListedColormap
-from sklearn.externals.six import StringIO
 # from IPython.display import Image
 # import pydotplus as pydot
 from sklearn.model_selection import KFold, train_test_split, ShuffleSplit

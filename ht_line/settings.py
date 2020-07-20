@@ -114,4 +114,4 @@ USE_TZ = True
 
 STATIC_URL = '/static/'
 
-MEDIA_ROOT = 'D:/Diplom/ht_line/storage'
+MEDIA_ROOT = '/Users/bootcamp/PycharmProjects/discriminativnost_counter/storage'
