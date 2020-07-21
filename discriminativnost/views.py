@@ -7,7 +7,6 @@ from django.shortcuts import render
 import json
 import numpy as np
 
-
 class Answer:
     def __init__(self, id, task_results):
         self.id = id
@@ -45,9 +44,8 @@ class Counter:
     @staticmethod
     def get_right_tasks_percent(test_data):
         for person in test_data:
-            for i in range(test_data[0].number_of_tasks):
-                person.correct_answer_percentage.append(
-                    Counter.count_right_answers(person, i) / test_data[0].number_of_tasks)
+          for i in range(test_data[0].number_of_tasks):
+            person.correct_answer_percentage.append(Counter.count_right_answers(person, i) / (test_data[0].number_of_tasks - 1))
         return test_data
 
     @staticmethod
@@ -98,18 +96,20 @@ class Counter:
     def count_dc(test_data):
         dc = []
         for i in range(test_data[0].number_of_tasks):
-            high_group = Counter.get_high_group(test_data, i)
-            low_group = Counter.get_low_group(test_data, i)
-            a = Counter.count_right_answers_in_tasks(high_group)
-            b = Counter.count_right_answers_in_tasks(low_group)
-            c = Counter.count_wrong_answers_in_tasks(high_group)
-            d = Counter.count_wrong_answers_in_tasks(low_group)
-            dc.append(a[i] / (a[i] + c[i]) - b[i] / (b[i] + d[i]))
+          high_group = Counter.get_high_group(test_data, i)
+          low_group = Counter.get_low_group(test_data, i)
+          a = Counter.count_right_answers_in_tasks(high_group)
+          b = Counter.count_right_answers_in_tasks(low_group)
+          c = Counter.count_wrong_answers_in_tasks(high_group)
+          d = Counter.count_wrong_answers_in_tasks(low_group)
+          dc.append(a[i] / (a[i] + c[i]) - b[i] / (b[i] + d[i]))
         return np.array(dc)
 
 
 def index(request):
-    return HttpResponse("<body><H1>Hello.</H1></body>")
+    return HttpResponse("<body><H1>Here you can calculate the discrimination based "
+                        "on the survey results. Submit a POST request "
+                        "to /discriminativnost/dc</H1></body>")
 
 
 class Discr(View):
