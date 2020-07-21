@@ -116,6 +116,8 @@ class Discr(View):
     def post(self, req, *args, **kwargs):
         json_data = req.body
         person_results = Counter.parcer(json_data)
+        if len(person_results) < 5:
+            return HttpResponse("{ Error: Insufficient data to analyze }")
         test_data = Counter.get_right_tasks_percent(np.array(person_results))
         dc = Counter.count_dc(test_data)
         resp = json.dumps({'DC': dc}, cls=NumpyEncoder)
