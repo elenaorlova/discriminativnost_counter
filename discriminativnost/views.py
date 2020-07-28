@@ -1,11 +1,9 @@
 from django.http import HttpResponse
 from django.views.generic import View
-from django.shortcuts import render
-
-# Create your views here.
 
 import json
 import numpy as np
+
 
 class Answer:
     def __init__(self, id, task_results):
@@ -27,7 +25,8 @@ class Counter:
     def parcer(data):
         person_results = []
         convered_data = json.loads(data)
-        results = convered_data['RESULTS']
+        keys = list(convered_data.keys())
+        results = convered_data[keys[0]]
 
         for person in results:
             for key, value in person.items():
@@ -45,18 +44,32 @@ class Counter:
     def get_right_tasks_percent(test_data):
         for person in test_data:
           for i in range(test_data[0].number_of_tasks):
-            person.correct_answer_percentage.append(Counter.count_right_answers(person, i) / (test_data[0].number_of_tasks - 1))
+            person.correct_answer_percentage.append(Counter.count_right_answers(person, i) /
+                                                    (test_data[0].number_of_tasks - 1 - Counter.get_disregarded_points(person, i)))
         return test_data
 
     @staticmethod
     def count_right_answers(person, i):
-        return np.sum(np.array([x for x in person.task_result if x >= 0])) - person.task_result[i]
+        curr_task = 0
+        if person.task_result[i] > 0:
+          curr_task = 1
+        return np.sum(np.array([x for x in person.task_result if x >= 0])) - curr_task
+
+    @staticmethod
+    def get_disregarded_points(person, i):
+        counter = 0
+        for res in person.task_result:
+          if (res < 0):
+            counter += 1
+        if person.task_result[i] < 0:
+          counter -= 1
+        return counter
 
     @staticmethod
     def get_high_group(data, i):
         data = sorted(data, key=lambda answer: answer.correct_answer_percentage[i])
         data_size = len(data)
-        line = round(data_size * 0.3) - 1
+        line = round(data_size * 0.3)
         high_percentage = data[data_size - line].correct_answer_percentage[i]
         high_data = [x for x in data if x.correct_answer_percentage[i] >= high_percentage]
         return high_data
@@ -65,7 +78,7 @@ class Counter:
     def get_low_group(data, i):
         sorted_data = sorted(data, key=lambda answer: answer.correct_answer_percentage[i])
         data_size = len(sorted_data)
-        line = round(data_size * 0.3) - 1
+        line = round(data_size * 0.3)
         low_percentage = sorted_data[0 + line].correct_answer_percentage[i]
         low_data = [x for x in sorted_data if x.correct_answer_percentage[i] <= low_percentage]
         return low_data
@@ -109,7 +122,7 @@ class Counter:
 def index(request):
     return HttpResponse("<body><H1>Here you can calculate the discrimination based "
                         "on the survey results. Submit a POST request "
-                        "to /discriminativnost/dc</H1></body>")
+                        "to /metrics/dc</H1></body>")
 
 
 class Discr(View):
